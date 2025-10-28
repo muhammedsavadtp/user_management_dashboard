@@ -159,6 +159,15 @@ $text-muted: #9ca3af;
   flex-wrap: wrap;
 }
 
+.status-pill-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  gap: 6px;
+}
+
 .status-pill {
   display: inline-flex;
   align-items: center;
