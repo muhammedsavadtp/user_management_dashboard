@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AvatarNameCell from "./AvatarNameCell";
 import StatusPill from "./StatusPill";
 import TeamTag from "./TeamTag";
@@ -21,6 +21,19 @@ const UserTable: React.FC<UserTableProps> = ({
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
   const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
   const triggerRefs = useRef<{ [key: number]: HTMLButtonElement | null }>({});
+  useEffect(() => {
+    const handleScroll = () => {
+      if (openDropdownId !== null) {
+        setOpenDropdownId(null);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [openDropdownId]);
 
   const columns = [
     { key: "name", label: "Name", sortable: true, width: "20%" },
