@@ -17,41 +17,63 @@ export function usePopoverPosition(
       const trigger = triggerRef.current;
       const popover = popoverRef.current;
 
-      if (!trigger) return;
+      if (!trigger || !popover) return; // Ensure popover is also available
 
       const triggerRect = trigger.getBoundingClientRect();
-      const popoverHeight = popover?.offsetHeight || 300; // Default height estimate
+      const popoverRect = popover.getBoundingClientRect(); // Get popover dimensions
+      const popoverHeight = popoverRect.height;
+      const popoverWidth = popoverRect.width;
       const viewportHeight = window.innerHeight;
-      const scrollY = window.scrollY;
-      const scrollX = window.scrollX;
+      const viewportWidth = window.innerWidth;
 
       const spaceBelow = viewportHeight - triggerRect.bottom;
       const spaceAbove = triggerRect.top;
 
       const shouldPlaceAbove = spaceBelow < popoverHeight && spaceAbove > spaceBelow;
 
-      const left = triggerRect.left + scrollX;
+      let newTop: number | undefined;
+      let newBottom: number | undefined;
+      let newLeft: number;
+      let newPlacement: 'top' | 'bottom';
+
+      // Calculate left position, ensuring it doesn't go off-screen horizontally
+      newLeft = triggerRect.left;
+      if (newLeft + popoverWidth > viewportWidth) {
+        newLeft = viewportWidth - popoverWidth - 10; // 10px padding from right
+      }
+      if (newLeft < 10) {
+        newLeft = 10; // 10px padding from left
+      }
+
 
       if (shouldPlaceAbove) {
-        // Place above trigger
-        setPosition({
-          bottom: viewportHeight - triggerRect.top - scrollY + 8,
-          left,
-          placement: 'top',
-        });
+        newBottom = viewportHeight - triggerRect.top + 8;
+        newPlacement = 'top';
+        // Ensure it doesn't go off-screen above
+        if (newBottom + popoverHeight > viewportHeight) {
+          newBottom = viewportHeight - popoverHeight - 10; // Clamp to top with padding
+        }
       } else {
-        // Place below trigger (default)
-        setPosition({
-          top: triggerRect.bottom + scrollY + 8,
-          left,
-          placement: 'bottom',
-        });
+        newTop = triggerRect.bottom + 8;
+        newPlacement = 'bottom';
+        // Ensure it doesn't go off-screen below
+        if (newTop + popoverHeight > viewportHeight) {
+          newTop = viewportHeight - popoverHeight - 10; // Clamp to bottom with padding
+        }
       }
+
+      setPosition({
+        top: newTop,
+        bottom: newBottom,
+        left: newLeft,
+        placement: newPlacement,
+      });
     };
 
     // Calculate on mount and when scrolling/resizing
     calculatePosition();
 
+    // Recalculate position on scroll and resize events
     window.addEventListener('scroll', calculatePosition);
     window.addEventListener('resize', calculatePosition);
 

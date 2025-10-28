@@ -10,6 +10,7 @@ interface DataTableToolbarProps {
   onImport?: () => void;
   onExport?: () => void;
   searchPlaceholder?: string;
+  searchTerm?: string; // Added searchTerm prop
 }
 
 const DataTableToolbar: React.FC<DataTableToolbarProps> = ({
@@ -19,6 +20,7 @@ const DataTableToolbar: React.FC<DataTableToolbarProps> = ({
   onImport,
   onExport,
   searchPlaceholder = 'Search...',
+  searchTerm, // Destructure searchTerm
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -49,11 +51,12 @@ const DataTableToolbar: React.FC<DataTableToolbarProps> = ({
       </div>
 
       <div className={`toolbar-right ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
-        <SearchBar 
-          placeholder={searchPlaceholder} 
-          onSearch={handleSearch} 
+        <SearchBar
+          placeholder={searchPlaceholder}
+          onSearch={handleSearch}
+          value={searchTerm} // Pass searchTerm as value
         />
-        
+
         <div className="toolbar-actions">
           <ToolbarButton
             label="Filter"
@@ -61,20 +64,20 @@ const DataTableToolbar: React.FC<DataTableToolbarProps> = ({
             hasDropdown={true}
             onClick={() => onFilter?.()}
           />
-          
+
           <ToolbarButton
             label="Sort"
             icon="sort"
             hasDropdown={true}
             onClick={() => onSort?.()}
           />
-          
+
           <ToolbarButton
             label="Import"
             icon="import"
             onClick={() => onImport?.()}
           />
-          
+
           <ToolbarButton
             label="Export"
             icon="export"

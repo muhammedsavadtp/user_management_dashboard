@@ -1,8 +1,11 @@
 export interface PaginationProps {
   currentPage: number;
-  totalPages: number;
+  totalPages: number; // This will now be calculated in HomePage
   onPageChange: (page: number) => void;
   maxVisiblePages?: number;
+  pageSize: number; // Added
+  onPageSizeChange: (size: number) => void; // Added
+  totalItems: number; // Added
 }
 
 export interface PaginationButtonProps {

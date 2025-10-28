@@ -9,6 +9,9 @@ const Pagination: React.FC<PaginationProps> = ({
   totalPages,
   onPageChange,
   maxVisiblePages = 5,
+  pageSize, // New prop
+  onPageSizeChange, // New prop
+  totalItems, // New prop
 }) => {
   const handlePrevious = () => {
     if (currentPage > 1) {
@@ -28,30 +31,48 @@ const Pagination: React.FC<PaginationProps> = ({
     }
   };
 
+  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onPageSizeChange(Number(e.target.value));
+  };
+
   return (
     <nav className="pagination-container" aria-label="Pagination">
-      <PaginationButton
-        label="Previous"
-        icon="arrow-left"
-        direction="prev"
-        disabled={currentPage === 1}
-        onClick={handlePrevious}
-      />
+      <div className="pagination-info">
+        Showing {Math.min(totalItems, (currentPage - 1) * pageSize + 1)} to {Math.min(totalItems, currentPage * pageSize)} of {totalItems} results
+      </div>
+      <div className="pagination-controls">
+        <PaginationButton
+          label="Previous"
+          icon="arrow-left"
+          direction="prev"
+          disabled={currentPage === 1}
+          onClick={handlePrevious}
+        />
 
-      <PageNumberList
-        currentPage={currentPage}
-        totalPages={totalPages}
-        maxVisiblePages={maxVisiblePages}
-        onPageClick={handlePageClick}
-      />
+        <PageNumberList
+          currentPage={currentPage}
+          totalPages={totalPages}
+          maxVisiblePages={maxVisiblePages}
+          onPageClick={handlePageClick}
+        />
 
-      <PaginationButton
-        label="Next"
-        icon="arrow-right"
-        direction="next"
-        disabled={currentPage === totalPages}
-        onClick={handleNext}
-      />
+        <PaginationButton
+          label="Next"
+          icon="arrow-right"
+          direction="next"
+          disabled={currentPage === totalPages}
+          onClick={handleNext}
+        />
+      </div>
+      <div className="page-size-selector">
+        <label htmlFor="pageSize">Items per page:</label>
+        <select id="pageSize" value={pageSize} onChange={handlePageSizeChange}>
+          <option value={5}>5</option>
+          <option value={10}>10</option>
+          <option value={20}>20</option>
+          <option value={50}>50</option>
+        </select>
+      </div>
     </nav>
   );
 };

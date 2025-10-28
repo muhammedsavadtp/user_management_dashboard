@@ -23,6 +23,7 @@ $arrow-size: 8px;
   flex-direction: column;
   max-height: 400px;
   overflow: hidden;
+  will-change: transform; // Added for potential performance/positioning fix
 
   // Arrow positioning
   &.bottom {

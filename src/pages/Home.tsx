@@ -1,112 +1,128 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import DataTableToolbar from "../components/table/tableToolbar/DataTableToolbar";
 import UserTable from "../components/table/userTable/UserTable";
-import type { SortDirection, User } from "../components/table/userTable/types";
-import { mockUsers } from "../lib/mock";
 import Pagination from "../components/shared/pagination/Pagination";
+import { useHomePageStore } from "../store";
+import type { User } from "../components/table/userTable/types";
 
 const HomePage: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const {
+    users,
+    searchTerm,
+    currentPage,
+    pageSize,
+    sortColumn,
+    sortDirection,
+    selectedUserIds,
+    totalUsers,
+    setSearchTerm,
+    setCurrentPage,
+    setPageSize,
+    setSort,
+    setSelectedUserIds,
+    fetchUsers,
+    updateUserStatus,
+  } = useHomePageStore();
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const filteredUsers = useMemo(() => {
+    let filtered = users;
+    if (searchTerm) {
+      filtered = users.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.username.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (sortColumn) {
+      filtered = [...filtered].sort((a, b) => {
+        let aValue: any = a[sortColumn as keyof User];
+        let bValue: any = b[sortColumn as keyof User];
+
+        // Handle specific sorting logic if needed
+        if (sortColumn === 'name' || sortColumn === 'email' || sortColumn === 'username') {
+          aValue = String(aValue).toLowerCase();
+          bValue = String(bValue).toLowerCase();
+        } else if (sortColumn === 'status') {
+          // Assuming status is an array of strings, sort by the first status
+          aValue = a.status[0]?.toLowerCase() || '';
+          bValue = b.status[0]?.toLowerCase() || '';
+        }
+
+        if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [users, searchTerm, sortColumn, sortDirection]);
+
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredUsers.slice(startIndex, endIndex);
+  }, [filteredUsers, currentPage, pageSize]);
+
+  const totalPages = Math.ceil(filteredUsers.length / pageSize);
 
   const handleSearch = (query: string) => {
-    console.log("Search query:", query);
-    setSearchQuery(query);
+    setSearchTerm(query);
   };
-
-  const handleFilter = () => {
-    console.log("Filter clicked - Open filter dropdown");
-    // Implement filter logic or show filter dropdown
-  };
-
-  const handleSort = () => {
-    console.log("Sort clicked - Open sort dropdown");
-    // Implement sort logic or show sort dropdown
-  };
-
-  const handleImport = () => {
-    console.log("Import clicked");
-    // Trigger file import dialog
-  };
-
-  const handleExport = () => {
-    console.log("Export clicked");
-    // Trigger data export
-  };
-
-    const [users, setUsers] = useState<User[]>(mockUsers);
-
-  const handleEdit = (id: number) => {
-    console.log('Edit user:', id);
-    // Open edit modal/form
-  };
-
-  const handleDelete = (id: number) => {
-    console.log('Delete user:', id);
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      setUsers(users.filter(user => user.id !== id));
-    }
-  };
-
-  const handleSelectionChange = (selectedIds: number[]) => {
-    console.log('Selected users:', selectedIds);
-  };
-
-  const handleSortTable = (key: string, direction: SortDirection) => {
-    console.log('Sort by:', key, direction);
-    
-    if (!direction) {
-      setUsers([...mockUsers]); // Reset to original order
-      return;
-    }
-
-    const sortedUsers = [...users].sort((a, b) => {
-      let aValue = a[key as keyof User];
-      let bValue = b[key as keyof User];
-
-      if (key === 'name') {
-        aValue = (aValue as string).toLowerCase();
-        bValue = (bValue as string).toLowerCase();
-      }
-
-      if (aValue < bValue) return direction === 'asc' ? -1 : 1;
-      if (aValue > bValue) return direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    setUsers(sortedUsers);
-  };
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 20;
 
   const handlePageChange = (page: number) => {
-    console.log('Changing to page:', page);
     setCurrentPage(page);
-    // Fetch data for the new page
-    // scrollToTop();
   };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+  };
+
+  const handleSortTable = (column: string, direction: SortDirection) => {
+    setSort(column, direction);
+  };
+
+  const handleSelectionChange = (ids: number[]) => {
+    setSelectedUserIds(ids);
+  };
+
+  const handleStatusChange = (userId: number, newStatus: string) => {
+    updateUserStatus(userId, newStatus);
+  };
+
   return (
     <div>
       <div>
         <DataTableToolbar
           onSearch={handleSearch}
-          onFilter={handleFilter}
-          onSort={handleSort}
-          onImport={handleImport}
-          onExport={handleExport}
+          onFilter={() => console.log("Filter clicked")} // Placeholder
+          onSort={() => console.log("Sort clicked")} // Placeholder
+          onImport={() => console.log("Import clicked")} // Placeholder
+          onExport={() => console.log("Export clicked")} // Placeholder
           searchPlaceholder="Search team members..."
+          searchTerm={searchTerm}
         />
-         <UserTable
-          users={users}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+        <UserTable
+          users={paginatedUsers}
+          onEdit={() => console.log("Edit clicked")} // Placeholder
+          onDelete={() => console.log("Delete clicked")} // Placeholder
           onSelectionChange={handleSelectionChange}
           onSort={handleSortTable}
+          onStatusChange={handleStatusChange}
         />
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
           maxVisiblePages={5}
+          pageSize={pageSize}
+          onPageSizeChange={handlePageSizeChange}
+          totalItems={filteredUsers.length}
         />
       </div>
     </div>
