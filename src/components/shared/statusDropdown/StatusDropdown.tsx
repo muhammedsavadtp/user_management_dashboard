@@ -7,6 +7,7 @@ import { usePopoverPosition } from '../../../hooks/usePopoverPosition';
 import type { StatusDropdownProps } from './types';
 import './StatusDropdown.scss';
 
+// StatusDropdown.tsx
 const StatusDropdown: React.FC<StatusDropdownProps> = ({
   isOpen,
   onClose,
@@ -64,7 +65,13 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
         left: position.left !== undefined ? `${position.left}px` : undefined,
       }}
     >
-      <div className="popover-arrow" />
+      {/* Dynamic arrow positioning */}
+      <div 
+        className="popover-arrow"
+        style={{
+          left: position.arrowLeft !== undefined ? `${position.arrowLeft}px` : undefined,
+        }}
+      />
 
       <SearchInput
         placeholder="Find Status"

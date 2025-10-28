@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import type { PopoverPosition } from '../components/shared/statusDropdown/types';
 
+const ARROW_SIZE = 8;
+const ARROW_OFFSET = 12; // Minimum distance from popover edge
+const GAP = 8; // Gap between trigger and popover
+const VIEWPORT_PADDING = 10;
+
 export function usePopoverPosition(
   triggerRef: React.RefObject<HTMLElement>,
   popoverRef: React.RefObject<HTMLElement>,
@@ -17,10 +22,10 @@ export function usePopoverPosition(
       const trigger = triggerRef.current;
       const popover = popoverRef.current;
 
-      if (!trigger || !popover) return; // Ensure popover is also available
+      if (!trigger || !popover) return;
 
       const triggerRect = trigger.getBoundingClientRect();
-      const popoverRect = popover.getBoundingClientRect(); // Get popover dimensions
+      const popoverRect = popover.getBoundingClientRect();
       const popoverHeight = popoverRect.height;
       const popoverWidth = popoverRect.width;
       const viewportHeight = window.innerHeight;
@@ -35,30 +40,40 @@ export function usePopoverPosition(
       let newBottom: number | undefined;
       let newLeft: number;
       let newPlacement: 'top' | 'bottom';
+      let arrowLeft: number | undefined;
 
       // Calculate left position, ensuring it doesn't go off-screen horizontally
       newLeft = triggerRect.left;
       if (newLeft + popoverWidth > viewportWidth) {
-        newLeft = viewportWidth - popoverWidth - 10; // 10px padding from right
+        newLeft = viewportWidth - popoverWidth - VIEWPORT_PADDING;
       }
-      if (newLeft < 10) {
-        newLeft = 10; // 10px padding from left
+      if (newLeft < VIEWPORT_PADDING) {
+        newLeft = VIEWPORT_PADDING;
       }
 
+      // Calculate arrow position (horizontally centered on trigger)
+      const triggerCenter = triggerRect.left + triggerRect.width / 2;
+      arrowLeft = triggerCenter - newLeft;
+
+      // Constrain arrow within popover bounds
+      arrowLeft = Math.max(
+        ARROW_OFFSET,
+        Math.min(arrowLeft, popoverWidth - ARROW_OFFSET)
+      );
 
       if (shouldPlaceAbove) {
-        newBottom = viewportHeight - triggerRect.top + 8;
+        newBottom = viewportHeight - triggerRect.top + GAP;
         newPlacement = 'top';
         // Ensure it doesn't go off-screen above
         if (newBottom + popoverHeight > viewportHeight) {
-          newBottom = viewportHeight - popoverHeight - 10; // Clamp to top with padding
+          newBottom = viewportHeight - popoverHeight - VIEWPORT_PADDING;
         }
       } else {
-        newTop = triggerRect.bottom + 8;
+        newTop = triggerRect.bottom + GAP;
         newPlacement = 'bottom';
         // Ensure it doesn't go off-screen below
         if (newTop + popoverHeight > viewportHeight) {
-          newTop = viewportHeight - popoverHeight - 10; // Clamp to bottom with padding
+          newTop = viewportHeight - popoverHeight - VIEWPORT_PADDING;
         }
       }
 
@@ -67,6 +82,7 @@ export function usePopoverPosition(
         bottom: newBottom,
         left: newLeft,
         placement: newPlacement,
+        arrowLeft,
       });
     };
 
@@ -74,11 +90,11 @@ export function usePopoverPosition(
     calculatePosition();
 
     // Recalculate position on scroll and resize events
-    window.addEventListener('scroll', calculatePosition);
+    window.addEventListener('scroll', calculatePosition, true); // Use capture phase
     window.addEventListener('resize', calculatePosition);
 
     return () => {
-      window.removeEventListener('scroll', calculatePosition);
+      window.removeEventListener('scroll', calculatePosition, true);
       window.removeEventListener('resize', calculatePosition);
     };
   }, [isOpen, triggerRef, popoverRef]);

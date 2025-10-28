@@ -23,56 +23,65 @@ $arrow-size: 8px;
   flex-direction: column;
   max-height: 400px;
   overflow: hidden;
-  will-change: transform; // Added for potential performance/positioning fix
 
-  // Arrow positioning
+  // Arrow Base
+  .popover-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    z-index: 1;
+    
+    &::before {
+      content: '';
+      position: absolute;
+    }
+  }
+
+  // Bottom placement (arrow points UP)
   &.bottom {
     .popover-arrow {
-      top: -($arrow-size + 1px);
-      left: 20px;
+      top: -$arrow-size;
       border-left: $arrow-size solid transparent;
       border-right: $arrow-size solid transparent;
       border-bottom: $arrow-size solid $popover-bg;
-      
-      &::before {
-        content: '';
-        position: absolute;
-        top: -1px;
-        left: -$arrow-size;
-        border-left: $arrow-size solid transparent;
-        border-right: $arrow-size solid transparent;
-        border-bottom: $arrow-size solid $border-color;
-      }
+      filter: drop-shadow(0 -1px 0 $border-color);
     }
   }
 
+  // Top placement (arrow points DOWN)
   &.top {
     .popover-arrow {
-      bottom: -($arrow-size + 1px);
-      left: 20px;
+      bottom: -$arrow-size;
       border-left: $arrow-size solid transparent;
       border-right: $arrow-size solid transparent;
       border-top: $arrow-size solid $popover-bg;
-      
-      &::before {
-        content: '';
-        position: absolute;
-        bottom: -1px;
-        left: -$arrow-size;
-        border-left: $arrow-size solid transparent;
-        border-right: $arrow-size solid transparent;
-        border-top: $arrow-size solid $border-color;
-      }
+      filter: drop-shadow(0 1px 0 $border-color);
     }
   }
-}
 
-// Arrow
-.popover-arrow {
-  position: absolute;
-  width: 0;
-  height: 0;
-  z-index: 1;
+  // Right placement (arrow points LEFT)
+  &.right {
+    .popover-arrow {
+      left: -$arrow-size;
+      top: 20px;
+      border-top: $arrow-size solid transparent;
+      border-bottom: $arrow-size solid transparent;
+      border-right: $arrow-size solid $popover-bg;
+      filter: drop-shadow(-1px 0 0 $border-color);
+    }
+  }
+
+  // Left placement (arrow points RIGHT)
+  &.left {
+    .popover-arrow {
+      right: -$arrow-size;
+      top: 20px;
+      border-top: $arrow-size solid transparent;
+      border-bottom: $arrow-size solid transparent;
+      border-left: $arrow-size solid $popover-bg;
+      filter: drop-shadow(1px 0 0 $border-color);
+    }
+  }
 }
 
 // Search Input Container
@@ -112,7 +121,6 @@ $arrow-size: 8px;
   flex: 1;
   max-height: 250px;
 
-  // Custom scrollbar
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -155,7 +163,6 @@ $arrow-size: 8px;
   }
 }
 
-// No Results Message
 .no-results {
   padding: 20px 15px;
   text-align: center;
@@ -163,7 +170,6 @@ $arrow-size: 8px;
   font-size: 14px;
 }
 
-// Add New Action
 .add-new-action {
   width: 100%;
   padding: 10px 15px;
@@ -192,9 +198,9 @@ $arrow-size: 8px;
     background-color: darken($item-hover-bg, 3%);
   }
 
-  &:focus {
-    outline: none;
-    box-shadow: inset 0 0 0 2px rgba($primary-color, 0.2);
+  &:focus-visible {
+    outline: 2px solid rgba($primary-color, 0.4);
+    outline-offset: -2px;
   }
 }
 
@@ -202,19 +208,86 @@ $arrow-size: 8px;
 @keyframes popoverFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-8px);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1);
   }
 }
 
 .status-dropdown-popover {
-  animation: popoverFadeIn 0.15s ease-out;
+  position: fixed;
+  background-color: $popover-bg;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  box-shadow: $popover-shadow;
+  width: 220px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;
+  overflow: visible; // Allow arrow to show outside
+
+  .popover-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    z-index: 2; // Above border pseudo-element
+    
+    // Create border effect with ::before
+    &::before {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      z-index: -1; // Behind the main arrow
+    }
+  }
+
+  // Bottom placement (arrow points UP)
+  &.bottom {
+    .popover-arrow {
+      top: -($arrow-size);
+      
+      // Inner triangle (white)
+      border-left: $arrow-size solid transparent;
+      border-right: $arrow-size solid transparent;
+      border-bottom: $arrow-size solid #ffffff; // Explicit white
+      
+      // Outer triangle (border)
+      &::before {
+        top: 1px;
+        left: -($arrow-size + 1px);
+        border-left: ($arrow-size + 1px) solid transparent;
+        border-right: ($arrow-size + 1px) solid transparent;
+        border-bottom: ($arrow-size + 1px) solid $border-color;
+      }
+    }
+  }
+
+  // Top placement (arrow points DOWN)  
+  &.top {
+    .popover-arrow {
+      bottom: -($arrow-size);
+      
+      // Inner triangle (white)
+      border-left: $arrow-size solid transparent;
+      border-right: $arrow-size solid transparent;
+      border-top: $arrow-size solid #ffffff; // Explicit white
+      
+      // Outer triangle (border)
+      &::before {
+        bottom: 1px;
+        left: -($arrow-size + 1px);
+        border-left: ($arrow-size + 1px) solid transparent;
+        border-right: ($arrow-size + 1px) solid transparent;
+        border-top: ($arrow-size + 1px) solid $border-color;
+      }
+    }
+  }
 }
 
-// Responsive adjustments
 @media (max-width: 480px) {
   .status-dropdown-popover {
     width: 200px;
