@@ -11,7 +11,7 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
   isOpen,
   onClose,
   triggerRef,
-  statusOptions = ['Active', 'Inactive', 'Busy', 'Away', 'Terminated'],
+  statusOptions = ['Busy', 'Away', 'Terminated'],
   onStatusSelect,
   onAddNewStatus,
   selectedStatus,

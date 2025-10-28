@@ -1,0 +1,37 @@
+.online-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.online {
+    background-color: #e6f7f0;
+    color: #00875a;
+
+    .status-dot {
+      background-color: #00875a;
+    }
+  }
+
+  &.offline {
+    background-color: #fdeaea;
+    color: #de350b;
+
+    .status-dot {
+      background-color: #de350b;
+    }
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .status-text {
+    line-height: 1;
+  }
+}

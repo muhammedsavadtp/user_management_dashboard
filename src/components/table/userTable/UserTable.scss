@@ -155,8 +155,8 @@ $text-muted: #9ca3af;
 // Status Pills
 .status-container {
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px; // Adjust as needed
 }
 
 .status-pill-button {

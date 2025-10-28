@@ -7,6 +7,7 @@ export interface User {
   role: string;
   email: string;
   teams: string[];
+  isOnline: boolean;
 }
 
 export type SortDirection = 'asc' | 'desc' | null;

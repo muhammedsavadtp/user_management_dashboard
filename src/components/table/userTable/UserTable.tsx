@@ -6,6 +6,7 @@ import ActionButtons from "./ActionButtons";
 import type { SortDirection, UserTableProps } from "./types";
 import "./UserTable.scss";
 import StatusDropdown from "../../shared/statusDropdown/StatusDropdown";
+import OnlineStatusIndicator from "./OnlineStatusIndicator";
 
 const UserTable: React.FC<UserTableProps> = ({
   users,
@@ -209,6 +210,7 @@ const UserTable: React.FC<UserTableProps> = ({
                       />
                     ))}
                   </button>
+                  <OnlineStatusIndicator isOnline={user.isOnline} />
                   {openDropdownId === user.id && (
                     <StatusDropdown
                       isOpen={true}
@@ -222,6 +224,7 @@ const UserTable: React.FC<UserTableProps> = ({
                   )}
                 </div>
               </td>
+
               <td>
                 <span className="role-text">{user.role}</span>
               </td>
