@@ -80,7 +80,7 @@ export const useHomePageStore = create(
             status: ['Busy'],
             role: 'Viewer',
             email: 'peter.jones@example.com',
-            teams: ['QA'],
+            teams: ['QA','Design','Frontend','Backend'],
             isOnline: true,
           },
           {
